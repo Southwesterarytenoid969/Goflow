@@ -6,6 +6,8 @@ The Community edition is open source and intended for individual developers, hom
 
 Paid offerings may include hosted services, enterprise features, premium integrations, support, and managed deployment help.
 
+See `ROADMAP.md` for the broader product roadmap and sequencing.
+
 ---
 
 ## Editions
@@ -87,4 +89,3 @@ See `TRADEMARK.md` for branding guidance.
 Commercial licensing, hosted deployments, paid support, and custom integration work can be offered separately from the Community edition.
 
 Contact information should be added here before a public commercial launch.
-

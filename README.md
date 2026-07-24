@@ -31,7 +31,7 @@ Goflow follows an open-core direction:
 
 Community users can run real local and internal automations without a paid license. Commercial offerings are expected to focus on features such as multi-user workspaces, RBAC, SSO, audit logs, version history, managed OAuth connectors, premium node packs, hosted infrastructure, and priority support.
 
-See [COMMERCIAL.md](COMMERCIAL.md) for the commercial roadmap boundary and [TRADEMARK.md](TRADEMARK.md) for branding guidance.
+See [ROADMAP.md](ROADMAP.md) for the product roadmap, [COMMERCIAL.md](COMMERCIAL.md) for the commercial boundary, and [TRADEMARK.md](TRADEMARK.md) for branding guidance.
 
 ---
 
@@ -209,6 +209,7 @@ d:/build2026/Goflow/
 * **Detailed Node Reference**: See [NODES.md](NODES.md) for a bilingual English/Vietnamese guide to the built-in nodes, placeholders, credentials, recipes, and troubleshooting.
 * **Plugin Guide**: See [PLUGINS.md](PLUGINS.md) for the plugin stdin/stdout contract, security notes, and sample plugin ideas.
 * **Backup and Restore Guide**: See [BACKUP.md](BACKUP.md) for protecting the SQLite database, credential master key, environment variables, and workflow exports.
+* **Roadmap**: See [ROADMAP.md](ROADMAP.md) for the current product direction and commercial/community boundary.
 * **Release Guide**: See [RELEASE.md](RELEASE.md) and [CHANGELOG.md](CHANGELOG.md) for packaging and release notes.
 * **Commercial and Trademark Guidance**: See [COMMERCIAL.md](COMMERCIAL.md) and [TRADEMARK.md](TRADEMARK.md) for the open-core direction and branding boundaries.
 * **Ready-to-use Templates**: Find pre-configured workflows in the [templates/](templates/) directory. You can easily import them using the "Import" button in the Web UI:
