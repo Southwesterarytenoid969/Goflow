@@ -1,0 +1,58 @@
+{
+  "name": "Incident Postmortem Generator",
+  "description": "Turns an incident webhook payload into an AI-generated postmortem draft, stores it in Notion, and emails stakeholders.",
+  "nodes": [
+    {
+      "id": "incident_webhook",
+      "type": "webhookTrigger",
+      "name": "Incident Webhook",
+      "position": { "x": 60, "y": 180 },
+      "params": {}
+    },
+    {
+      "id": "draft_postmortem",
+      "type": "deepseekAI",
+      "name": "Draft Postmortem",
+      "position": { "x": 360, "y": 180 },
+      "params": {
+        "model": "deepseek-chat",
+        "system_message": "You write concise incident postmortem drafts with impact, timeline, root cause, and action items.",
+        "prompt": "Create a postmortem from this incident payload: {{incident_webhook.body}}",
+        "temperature": "0.2",
+        "credential_id": ""
+      }
+    },
+    {
+      "id": "save_notion",
+      "type": "notionPage",
+      "name": "Save Draft To Notion",
+      "position": { "x": 680, "y": 180 },
+      "params": {
+        "credential_id": "",
+        "database_id": "",
+        "properties_json": "{\n  \"Name\": {\n    \"title\": [{ \"text\": { \"content\": \"Incident Postmortem Draft\" } }]\n  }\n}"
+      }
+    },
+    {
+      "id": "email_stakeholders",
+      "type": "emailSMTP",
+      "name": "Email Stakeholders",
+      "position": { "x": 1000, "y": 180 },
+      "params": {
+        "host": "smtp.gmail.com",
+        "port": "587",
+        "username": "",
+        "credential_id": "",
+        "to": "stakeholders@example.com",
+        "subject": "Incident Postmortem Draft Ready",
+        "body": "<p>A postmortem draft has been created in Notion.</p><pre>{{draft_postmortem.ai_response}}</pre>"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "incident_webhook", "target": "draft_postmortem" },
+    { "id": "e2", "source": "draft_postmortem", "target": "save_notion" },
+    { "id": "e3", "source": "save_notion", "target": "email_stakeholders" }
+  ]
+}
+

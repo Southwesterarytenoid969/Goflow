@@ -1,0 +1,65 @@
+{
+  "name": "Customer Churn Signal Monitor",
+  "description": "Polls customer activity, detects churn-risk wording, and creates a Notion follow-up task.",
+  "nodes": [
+    {
+      "id": "cron_churn",
+      "type": "cronTrigger",
+      "name": "Daily Churn Scan",
+      "position": { "x": 60, "y": 200 },
+      "params": { "cron_expression": "0 9 * * *" }
+    },
+    {
+      "id": "fetch_activity",
+      "type": "httpRequest",
+      "name": "Fetch Customer Activity",
+      "position": { "x": 350, "y": 200 },
+      "params": {
+        "method": "GET",
+        "url": "https://example.com/api/customer-activity",
+        "headers": "{}",
+        "body": ""
+      }
+    },
+    {
+      "id": "detect_churn",
+      "type": "conditionIf",
+      "name": "Churn Signal?",
+      "position": { "x": 670, "y": 200 },
+      "params": {
+        "field": "{{fetch_activity.data}}",
+        "operator": "contains",
+        "value": "cancel"
+      }
+    },
+    {
+      "id": "create_followup",
+      "type": "notionPage",
+      "name": "Create Follow-up Task",
+      "position": { "x": 970, "y": 90 },
+      "params": {
+        "credential_id": "",
+        "database_id": "",
+        "properties_json": "{\n  \"Name\": {\n    \"title\": [{ \"text\": { \"content\": \"Churn-risk customer follow-up\" } }]\n  }\n}"
+      }
+    },
+    {
+      "id": "notify_success",
+      "type": "slackBot",
+      "name": "Notify CS Team",
+      "position": { "x": 1270, "y": 90 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow CS",
+        "text": "Churn-risk follow-up task created."
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_churn", "target": "fetch_activity" },
+    { "id": "e2", "source": "fetch_activity", "target": "detect_churn" },
+    { "id": "e3", "source": "detect_churn", "sourceHandle": "true", "target": "create_followup" },
+    { "id": "e4", "source": "create_followup", "target": "notify_success" }
+  ]
+}
+

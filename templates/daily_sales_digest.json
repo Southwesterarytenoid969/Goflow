@@ -1,0 +1,56 @@
+{
+  "name": "Daily Sales Digest",
+  "description": "Fetches daily sales data, summarizes it with JavaScript, and emails a digest to the team.",
+  "nodes": [
+    {
+      "id": "cron_daily",
+      "type": "cronTrigger",
+      "name": "Every Morning",
+      "position": { "x": 60, "y": 180 },
+      "params": { "cron_expression": "0 8 * * *" }
+    },
+    {
+      "id": "fetch_sales",
+      "type": "httpRequest",
+      "name": "Fetch Sales API",
+      "position": { "x": 330, "y": 180 },
+      "params": {
+        "method": "GET",
+        "url": "https://example.com/api/sales/today",
+        "headers": "{\"Authorization\":\"Bearer YOUR_TOKEN\"}",
+        "body": ""
+      }
+    },
+    {
+      "id": "summarize_sales",
+      "type": "jsCodeRunner",
+      "name": "Summarize Sales",
+      "position": { "x": 630, "y": 180 },
+      "params": {
+        "code": "var data = outputs.fetch_sales && outputs.fetch_sales.data ? outputs.fetch_sales.data : {};\nreturn {\n  status: 'ready',\n  total_revenue: data.total_revenue || 0,\n  orders: data.orders || 0,\n  summary: 'Daily sales digest is ready.'\n};",
+        "timeout": "5"
+      }
+    },
+    {
+      "id": "send_digest",
+      "type": "emailSMTP",
+      "name": "Send Email Digest",
+      "position": { "x": 930, "y": 180 },
+      "params": {
+        "host": "smtp.gmail.com",
+        "port": "587",
+        "username": "",
+        "credential_id": "",
+        "to": "team@example.com",
+        "subject": "Daily Sales Digest",
+        "body": "<h3>Daily Sales Digest</h3><p>{{summarize_sales.summary}}</p>"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_daily", "target": "fetch_sales" },
+    { "id": "e2", "source": "fetch_sales", "target": "summarize_sales" },
+    { "id": "e3", "source": "summarize_sales", "target": "send_digest" }
+  ]
+}
+

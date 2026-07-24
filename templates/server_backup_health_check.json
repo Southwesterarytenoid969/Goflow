@@ -1,0 +1,71 @@
+{
+  "name": "Server Backup Health Check",
+  "description": "Runs a remote backup health command and alerts Discord when the output indicates failure.",
+  "nodes": [
+    {
+      "id": "cron_backup_check",
+      "type": "cronTrigger",
+      "name": "Nightly Backup Check",
+      "position": { "x": 60, "y": 180 },
+      "params": { "cron_expression": "30 2 * * *" }
+    },
+    {
+      "id": "check_backup",
+      "type": "sshRunner",
+      "name": "Check Backup Status",
+      "position": { "x": 360, "y": 180 },
+      "params": {
+        "credential_id": "",
+        "address": "127.0.0.1:22",
+        "username": "ubuntu",
+        "password": "",
+        "private_key": "",
+        "command": "test -f /var/backups/latest.ok && echo BACKUP_OK || echo BACKUP_FAILED"
+      }
+    },
+    {
+      "id": "backup_failed",
+      "type": "conditionIf",
+      "name": "Backup Failed?",
+      "position": { "x": 680, "y": 180 },
+      "params": {
+        "field": "{{check_backup.output}}",
+        "operator": "contains",
+        "value": "BACKUP_FAILED"
+      }
+    },
+    {
+      "id": "discord_backup_alert",
+      "type": "discordBot",
+      "name": "Alert Backup Failure",
+      "position": { "x": 990, "y": 90 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow Backup Monitor",
+        "content": "Backup check failed.",
+        "embed_title": "Backup Failure",
+        "embed_desc": "{{check_backup.output}}"
+      }
+    },
+    {
+      "id": "record_backup_ok",
+      "type": "redisCommand",
+      "name": "Record Backup OK",
+      "position": { "x": 990, "y": 310 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "SET",
+        "key": "backup:last_ok",
+        "value": "{{check_backup.output}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_backup_check", "target": "check_backup" },
+    { "id": "e2", "source": "check_backup", "target": "backup_failed" },
+    { "id": "e3", "source": "backup_failed", "sourceHandle": "true", "target": "discord_backup_alert" },
+    { "id": "e4", "source": "backup_failed", "sourceHandle": "false", "target": "record_backup_ok" }
+  ]
+}
+

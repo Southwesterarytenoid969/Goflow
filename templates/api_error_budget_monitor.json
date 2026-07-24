@@ -1,0 +1,66 @@
+{
+  "name": "API Error Budget Monitor",
+  "description": "Checks API metrics, classifies error budget status, and sends alerts when burn rate is high.",
+  "nodes": [
+    {
+      "id": "cron_metrics",
+      "type": "cronTrigger",
+      "name": "Check Metrics",
+      "position": { "x": 60, "y": 200 },
+      "params": { "cron_expression": "*/15 * * * *" }
+    },
+    {
+      "id": "fetch_metrics",
+      "type": "httpRequest",
+      "name": "Fetch Metrics",
+      "position": { "x": 340, "y": 200 },
+      "params": {
+        "method": "GET",
+        "url": "https://example.com/api/metrics",
+        "headers": "{}",
+        "body": ""
+      }
+    },
+    {
+      "id": "classify_budget",
+      "type": "jsCodeRunner",
+      "name": "Classify Error Budget",
+      "position": { "x": 650, "y": 200 },
+      "params": {
+        "code": "var data = outputs.fetch_metrics && outputs.fetch_metrics.data ? outputs.fetch_metrics.data : {};\nvar errorRate = Number(data.error_rate || 0);\nvar status = errorRate > 0.05 ? 'burning' : 'healthy';\nreturn { status: status, error_rate: errorRate };",
+        "timeout": "5"
+      }
+    },
+    {
+      "id": "budget_burning",
+      "type": "conditionIf",
+      "name": "Budget Burning?",
+      "position": { "x": 960, "y": 200 },
+      "params": {
+        "field": "{{classify_budget.status}}",
+        "operator": "equals",
+        "value": "burning"
+      }
+    },
+    {
+      "id": "pager_alert",
+      "type": "discordBot",
+      "name": "Alert On-call",
+      "position": { "x": 1260, "y": 90 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow SLO",
+        "content": "Error budget burn rate is high.",
+        "embed_title": "SLO Alert",
+        "embed_desc": "Current error rate: {{classify_budget.error_rate}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_metrics", "target": "fetch_metrics" },
+    { "id": "e2", "source": "fetch_metrics", "target": "classify_budget" },
+    { "id": "e3", "source": "classify_budget", "target": "budget_burning" },
+    { "id": "e4", "source": "budget_burning", "sourceHandle": "true", "target": "pager_alert" }
+  ]
+}
+

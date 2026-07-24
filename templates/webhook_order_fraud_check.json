@@ -1,0 +1,65 @@
+{
+  "name": "Webhook Order Fraud Check",
+  "description": "Receives order payloads, classifies risk, routes suspicious orders to review, and records the decision.",
+  "nodes": [
+    {
+      "id": "order_webhook",
+      "type": "webhookTrigger",
+      "name": "Order Webhook",
+      "position": { "x": 60, "y": 200 },
+      "params": {}
+    },
+    {
+      "id": "risk_score",
+      "type": "jsCodeRunner",
+      "name": "Score Order Risk",
+      "position": { "x": 340, "y": 200 },
+      "params": {
+        "code": "var body = trigger && trigger.body ? trigger.body : {};\nvar amount = Number(body.amount || 0);\nvar country = String(body.country || '').toUpperCase();\nvar risk = amount > 1000 || country === 'UNKNOWN' ? 'review' : 'approved';\nreturn { risk: risk, amount: amount, country: country, order_id: body.order_id || 'unknown' };",
+        "timeout": "5"
+      }
+    },
+    {
+      "id": "needs_review",
+      "type": "conditionIf",
+      "name": "Needs Review?",
+      "position": { "x": 650, "y": 200 },
+      "params": {
+        "field": "{{risk_score.risk}}",
+        "operator": "equals",
+        "value": "review"
+      }
+    },
+    {
+      "id": "review_alert",
+      "type": "telegramBot",
+      "name": "Alert Fraud Review",
+      "position": { "x": 950, "y": 90 },
+      "params": {
+        "credential_id": "",
+        "chat_id": "",
+        "message": "Order {{risk_score.order_id}} needs fraud review. Amount: {{risk_score.amount}}"
+      }
+    },
+    {
+      "id": "record_approved",
+      "type": "redisCommand",
+      "name": "Record Approved Order",
+      "position": { "x": 950, "y": 310 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "SET",
+        "key": "orders:last_approved",
+        "value": "{{risk_score.order_id}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "order_webhook", "target": "risk_score" },
+    { "id": "e2", "source": "risk_score", "target": "needs_review" },
+    { "id": "e3", "source": "needs_review", "sourceHandle": "true", "target": "review_alert" },
+    { "id": "e4", "source": "needs_review", "sourceHandle": "false", "target": "record_approved" }
+  ]
+}
+

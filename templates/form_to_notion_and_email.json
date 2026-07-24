@@ -1,0 +1,54 @@
+{
+  "name": "Form To Notion And Email",
+  "description": "Receives a website form submission, creates a Notion page, and sends a confirmation email.",
+  "nodes": [
+    {
+      "id": "form_webhook",
+      "type": "webhookTrigger",
+      "name": "Form Webhook",
+      "position": { "x": 60, "y": 180 },
+      "params": {}
+    },
+    {
+      "id": "prepare_form",
+      "type": "jsonTransform",
+      "name": "Prepare Form Data",
+      "position": { "x": 340, "y": 180 },
+      "params": {
+        "json_template": "{\n  \"name\": \"{{form_webhook.body.name}}\",\n  \"email\": \"{{form_webhook.body.email}}\",\n  \"message\": \"{{form_webhook.body.message}}\"\n}"
+      }
+    },
+    {
+      "id": "create_notion_page",
+      "type": "notionPage",
+      "name": "Create Notion Page",
+      "position": { "x": 640, "y": 180 },
+      "params": {
+        "credential_id": "",
+        "database_id": "",
+        "properties_json": "{\n  \"Name\": {\n    \"title\": [{ \"text\": { \"content\": \"New Website Lead\" } }]\n  }\n}"
+      }
+    },
+    {
+      "id": "send_confirmation",
+      "type": "emailSMTP",
+      "name": "Send Confirmation",
+      "position": { "x": 960, "y": 180 },
+      "params": {
+        "host": "smtp.gmail.com",
+        "port": "587",
+        "username": "",
+        "credential_id": "",
+        "to": "{{form_webhook.body.email}}",
+        "subject": "We received your request",
+        "body": "<p>Thanks for contacting us. We will reply soon.</p>"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "form_webhook", "target": "prepare_form" },
+    { "id": "e2", "source": "prepare_form", "target": "create_notion_page" },
+    { "id": "e3", "source": "create_notion_page", "target": "send_confirmation" }
+  ]
+}
+

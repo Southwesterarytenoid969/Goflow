@@ -706,6 +706,10 @@ Security note / Luu y bao mat:
 
 **VI:** Plugin la code co the thuc thi. Chi dung plugin ban tin cay.
 
+More examples / Vi du them:
+
+- See `PLUGINS.md` for payload validation, secret redaction, lead scoring, and other plugin ideas.
+
 ---
 
 ## 11. Workflow Logic Nodes / Node Logic Workflow
@@ -896,4 +900,3 @@ cronTrigger -> postgresQuery -> jsonTransform -> emailSMTP
 4. Them mot credential va thay token truc tiep bang credential.
 5. Thu AI Assistant tao ban nhap, sau do tu xem tung node.
 6. Chi them database hoac Google Sheets sau khi da nam cac buoc co ban.
-

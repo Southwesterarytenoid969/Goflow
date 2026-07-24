@@ -1,0 +1,53 @@
+{
+  "name": "GitHub PR Review Reminder",
+  "description": "Checks open pull requests and posts a Slack reminder when review work exists.",
+  "nodes": [
+    {
+      "id": "cron_workday",
+      "type": "cronTrigger",
+      "name": "Workday Reminder",
+      "position": { "x": 60, "y": 180 },
+      "params": { "cron_expression": "0 10 * * 1-5" }
+    },
+    {
+      "id": "fetch_pulls",
+      "type": "httpRequest",
+      "name": "Fetch Open Pull Requests",
+      "position": { "x": 350, "y": 180 },
+      "params": {
+        "method": "GET",
+        "url": "https://api.github.com/repos/OWNER/REPO/pulls?state=open",
+        "headers": "{\"Accept\":\"application/vnd.github+json\"}",
+        "body": ""
+      }
+    },
+    {
+      "id": "has_pulls",
+      "type": "conditionIf",
+      "name": "Has Open PRs?",
+      "position": { "x": 670, "y": 180 },
+      "params": {
+        "field": "{{fetch_pulls.data}}",
+        "operator": "is_not_empty",
+        "value": ""
+      }
+    },
+    {
+      "id": "slack_reminder",
+      "type": "slackBot",
+      "name": "Post Slack Reminder",
+      "position": { "x": 970, "y": 90 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow PR Bot",
+        "text": "Open pull requests need review: {{fetch_pulls.data}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_workday", "target": "fetch_pulls" },
+    { "id": "e2", "source": "fetch_pulls", "target": "has_pulls" },
+    { "id": "e3", "source": "has_pulls", "sourceHandle": "true", "target": "slack_reminder" }
+  ]
+}
+

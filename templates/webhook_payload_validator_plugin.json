@@ -1,0 +1,65 @@
+{
+  "name": "Webhook Payload Validator Plugin",
+  "description": "Uses a custom plugin to validate webhook payloads before routing valid and invalid requests.",
+  "nodes": [
+    {
+      "id": "incoming_webhook",
+      "type": "webhookTrigger",
+      "name": "Incoming Webhook",
+      "position": { "x": 60, "y": 200 },
+      "params": {}
+    },
+    {
+      "id": "validate_payload",
+      "type": "goflowPlugin",
+      "name": "Validate Payload Plugin",
+      "position": { "x": 360, "y": 200 },
+      "params": {
+        "plugin_name": "payload_validator.exe"
+      }
+    },
+    {
+      "id": "payload_valid",
+      "type": "conditionIf",
+      "name": "Payload Valid?",
+      "position": { "x": 670, "y": 200 },
+      "params": {
+        "field": "{{validate_payload.status}}",
+        "operator": "equals",
+        "value": "valid"
+      }
+    },
+    {
+      "id": "send_to_api",
+      "type": "httpRequest",
+      "name": "Send Valid Payload",
+      "position": { "x": 980, "y": 90 },
+      "params": {
+        "method": "POST",
+        "url": "https://example.com/api/validated",
+        "headers": "{\"Content-Type\":\"application/json\"}",
+        "body": "{{incoming_webhook.body}}"
+      }
+    },
+    {
+      "id": "invalid_alert",
+      "type": "discordBot",
+      "name": "Alert Invalid Payload",
+      "position": { "x": 980, "y": 310 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow Validator",
+        "content": "Invalid webhook payload.",
+        "embed_title": "Validation Failed",
+        "embed_desc": "Missing fields: {{validate_payload.missing}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "incoming_webhook", "target": "validate_payload" },
+    { "id": "e2", "source": "validate_payload", "target": "payload_valid" },
+    { "id": "e3", "source": "payload_valid", "sourceHandle": "true", "target": "send_to_api" },
+    { "id": "e4", "source": "payload_valid", "sourceHandle": "false", "target": "invalid_alert" }
+  ]
+}
+

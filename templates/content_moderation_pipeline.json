@@ -1,0 +1,67 @@
+{
+  "name": "Content Moderation Pipeline",
+  "description": "Classifies incoming user content with AI and alerts Slack when content appears unsafe.",
+  "nodes": [
+    {
+      "id": "content_webhook",
+      "type": "webhookTrigger",
+      "name": "Content Webhook",
+      "position": { "x": 60, "y": 200 },
+      "params": {}
+    },
+    {
+      "id": "moderate_content",
+      "type": "openAIGPT",
+      "name": "Moderate Content",
+      "position": { "x": 360, "y": 200 },
+      "params": {
+        "model": "gpt-4o-mini",
+        "system_message": "Classify content. Reply with one JSON-like sentence containing status: safe or unsafe and a short reason.",
+        "prompt": "Moderate this content: {{content_webhook.body.text}}",
+        "credential_id": ""
+      }
+    },
+    {
+      "id": "is_unsafe",
+      "type": "conditionIf",
+      "name": "Unsafe?",
+      "position": { "x": 670, "y": 200 },
+      "params": {
+        "field": "{{moderate_content.ai_response}}",
+        "operator": "contains",
+        "value": "unsafe"
+      }
+    },
+    {
+      "id": "alert_moderators",
+      "type": "slackBot",
+      "name": "Alert Moderators",
+      "position": { "x": 970, "y": 90 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow Moderation",
+        "text": "Content needs review: {{moderate_content.ai_response}}"
+      }
+    },
+    {
+      "id": "record_safe",
+      "type": "redisCommand",
+      "name": "Record Safe Content",
+      "position": { "x": 970, "y": 310 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "SET",
+        "key": "moderation:last_safe",
+        "value": "{{content_webhook.body.id}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "content_webhook", "target": "moderate_content" },
+    { "id": "e2", "source": "moderate_content", "target": "is_unsafe" },
+    { "id": "e3", "source": "is_unsafe", "sourceHandle": "true", "target": "alert_moderators" },
+    { "id": "e4", "source": "is_unsafe", "sourceHandle": "false", "target": "record_safe" }
+  ]
+}
+

@@ -1,0 +1,54 @@
+{
+  "name": "Google Sheets Lead Router",
+  "description": "Stores inbound leads in Google Sheets and routes enterprise leads to Slack.",
+  "nodes": [
+    {
+      "id": "lead_webhook",
+      "type": "webhookTrigger",
+      "name": "Lead Webhook",
+      "position": { "x": 60, "y": 200 },
+      "params": {}
+    },
+    {
+      "id": "append_lead",
+      "type": "googleSheets",
+      "name": "Append Lead",
+      "position": { "x": 340, "y": 200 },
+      "params": {
+        "credential_id": "",
+        "spreadsheet_id": "",
+        "sheet_name": "Leads",
+        "action": "APPEND",
+        "values_json": "[\"{{lead_webhook.body.name}}\", \"{{lead_webhook.body.email}}\", \"{{lead_webhook.body.company}}\"]"
+      }
+    },
+    {
+      "id": "enterprise_lead",
+      "type": "conditionIf",
+      "name": "Enterprise Lead?",
+      "position": { "x": 650, "y": 200 },
+      "params": {
+        "field": "{{lead_webhook.body.message}}",
+        "operator": "contains",
+        "value": "enterprise"
+      }
+    },
+    {
+      "id": "notify_sales",
+      "type": "slackBot",
+      "name": "Notify Sales",
+      "position": { "x": 950, "y": 100 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow Sales",
+        "text": "Enterprise lead: {{lead_webhook.body.name}} / {{lead_webhook.body.email}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "lead_webhook", "target": "append_lead" },
+    { "id": "e2", "source": "append_lead", "target": "enterprise_lead" },
+    { "id": "e3", "source": "enterprise_lead", "sourceHandle": "true", "target": "notify_sales" }
+  ]
+}
+

@@ -1,0 +1,68 @@
+{
+  "name": "Redis Queue Worker",
+  "description": "Polls a Redis list, sends work items to an HTTP API, and records the last processed item.",
+  "nodes": [
+    {
+      "id": "cron_queue_poll",
+      "type": "cronTrigger",
+      "name": "Poll Queue",
+      "position": { "x": 60, "y": 180 },
+      "params": { "cron_expression": "*/1 * * * *" }
+    },
+    {
+      "id": "pop_queue",
+      "type": "redisCommand",
+      "name": "Pop Work Item",
+      "position": { "x": 330, "y": 180 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "LPOP",
+        "key": "goflow:queue:jobs"
+      }
+    },
+    {
+      "id": "has_job",
+      "type": "conditionIf",
+      "name": "Has Job?",
+      "position": { "x": 620, "y": 180 },
+      "params": {
+        "field": "{{pop_queue.result}}",
+        "operator": "is_not_empty",
+        "value": ""
+      }
+    },
+    {
+      "id": "send_job",
+      "type": "httpRequest",
+      "name": "Send Job To API",
+      "position": { "x": 910, "y": 90 },
+      "params": {
+        "method": "POST",
+        "url": "https://example.com/api/jobs",
+        "headers": "{\"Content-Type\":\"application/json\"}",
+        "body": "{{pop_queue.result}}"
+      }
+    },
+    {
+      "id": "record_processed",
+      "type": "redisCommand",
+      "name": "Record Processed Job",
+      "position": { "x": 1210, "y": 90 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "SET",
+        "key": "goflow:queue:last_processed",
+        "value": "{{pop_queue.result}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_queue_poll", "target": "pop_queue" },
+    { "id": "e2", "source": "pop_queue", "target": "has_job" },
+    { "id": "e3", "source": "has_job", "sourceHandle": "true", "target": "send_job" },
+    { "id": "e4", "source": "send_job", "target": "record_processed" }
+  ]
+}
+

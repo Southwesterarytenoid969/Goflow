@@ -1,0 +1,57 @@
+{
+  "name": "RSS To Discord Digest",
+  "description": "Fetches a feed, asks AI to summarize it, and posts the digest to Discord.",
+  "nodes": [
+    {
+      "id": "cron_hourly",
+      "type": "cronTrigger",
+      "name": "Hourly",
+      "position": { "x": 60, "y": 180 },
+      "params": { "cron_expression": "0 * * * *" }
+    },
+    {
+      "id": "fetch_feed",
+      "type": "httpRequest",
+      "name": "Fetch RSS Feed",
+      "position": { "x": 330, "y": 180 },
+      "params": {
+        "method": "GET",
+        "url": "https://example.com/feed.xml",
+        "headers": "{}",
+        "body": ""
+      }
+    },
+    {
+      "id": "summarize_feed",
+      "type": "deepseekAI",
+      "name": "Summarize Feed",
+      "position": { "x": 640, "y": 180 },
+      "params": {
+        "model": "deepseek-chat",
+        "system_message": "You summarize RSS or XML feeds into short operational digests.",
+        "prompt": "Summarize this feed in 5 bullets: {{fetch_feed.data}}",
+        "temperature": "0.2",
+        "credential_id": ""
+      }
+    },
+    {
+      "id": "post_discord",
+      "type": "discordBot",
+      "name": "Post Digest",
+      "position": { "x": 950, "y": 180 },
+      "params": {
+        "webhook_url": "",
+        "username": "Goflow Digest",
+        "content": "{{summarize_feed.ai_response}}",
+        "embed_title": "RSS Digest",
+        "embed_desc": "Automated feed summary"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "cron_hourly", "target": "fetch_feed" },
+    { "id": "e2", "source": "fetch_feed", "target": "summarize_feed" },
+    { "id": "e3", "source": "summarize_feed", "target": "post_discord" }
+  ]
+}
+

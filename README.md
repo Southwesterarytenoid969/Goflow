@@ -207,6 +207,7 @@ d:/build2026/Goflow/
 ## Documentation & Workflow Templates
 
 * **Detailed Node Reference**: See [NODES.md](NODES.md) for a bilingual English/Vietnamese guide to the built-in nodes, placeholders, credentials, recipes, and troubleshooting.
+* **Plugin Guide**: See [PLUGINS.md](PLUGINS.md) for the plugin stdin/stdout contract, security notes, and sample plugin ideas.
 * **Backup and Restore Guide**: See [BACKUP.md](BACKUP.md) for protecting the SQLite database, credential master key, environment variables, and workflow exports.
 * **Release Guide**: See [RELEASE.md](RELEASE.md) and [CHANGELOG.md](CHANGELOG.md) for packaging and release notes.
 * **Commercial and Trademark Guidance**: See [COMMERCIAL.md](COMMERCIAL.md) and [TRADEMARK.md](TRADEMARK.md) for the open-core direction and branding boundaries.
@@ -218,6 +219,20 @@ d:/build2026/Goflow/
   - `uptime_incident_response.json`: Health-check monitor with Redis incident logging and Discord alerts.
   - `customer_support_ai_triage.json`: AI-assisted support ticket triage with urgent/normal routing.
   - `release_smoke_test.json`: Deployment helper that pulls code, restarts a service, runs a smoke test, and sends success/failure alerts.
+  - `daily_sales_digest.json`: Scheduled business digest using HTTP, JavaScript, and SMTP.
+  - `webhook_order_fraud_check.json`: Webhook order risk routing with review alerts.
+  - `rss_to_discord_digest.json`: AI-generated RSS digest posted to Discord.
+  - `github_pr_review_reminder.json`: Open pull request reminder for Slack.
+  - `server_backup_health_check.json`: SSH backup health check with alerts.
+  - `form_to_notion_and_email.json`: Website form to Notion plus confirmation email.
+  - `google_sheets_lead_router.json`: Lead capture to Sheets with enterprise routing.
+  - `redis_queue_worker.json`: Redis-backed queue polling workflow.
+  - `webhook_payload_validator_plugin.json`: Plugin-based webhook validation.
+  - `content_moderation_pipeline.json`: AI moderation and Slack routing.
+  - `incident_postmortem_generator.json`: AI postmortem draft to Notion and email.
+  - `plugin_lead_scoring_router.json`: Custom plugin lead scoring workflow.
+  - `api_error_budget_monitor.json`: Metrics check with error budget alerting.
+  - `customer_churn_signal_monitor.json`: Customer success churn signal workflow.
 
 ---
 

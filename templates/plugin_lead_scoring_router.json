@@ -1,0 +1,64 @@
+{
+  "name": "Plugin Lead Scoring Router",
+  "description": "Scores inbound leads with a custom plugin and routes high-value leads to sales.",
+  "nodes": [
+    {
+      "id": "lead_webhook",
+      "type": "webhookTrigger",
+      "name": "Lead Webhook",
+      "position": { "x": 60, "y": 200 },
+      "params": {}
+    },
+    {
+      "id": "score_lead",
+      "type": "goflowPlugin",
+      "name": "Score Lead Plugin",
+      "position": { "x": 360, "y": 200 },
+      "params": {
+        "plugin_name": "lead_scorer.exe"
+      }
+    },
+    {
+      "id": "high_value",
+      "type": "conditionIf",
+      "name": "High Value?",
+      "position": { "x": 670, "y": 200 },
+      "params": {
+        "field": "{{score_lead.tier}}",
+        "operator": "equals",
+        "value": "high"
+      }
+    },
+    {
+      "id": "sales_alert",
+      "type": "telegramBot",
+      "name": "Alert Sales",
+      "position": { "x": 970, "y": 90 },
+      "params": {
+        "credential_id": "",
+        "chat_id": "",
+        "message": "High-value lead scored {{score_lead.score}}: {{score_lead.email}}"
+      }
+    },
+    {
+      "id": "record_lead_score",
+      "type": "redisCommand",
+      "name": "Record Lead Score",
+      "position": { "x": 970, "y": 310 },
+      "params": {
+        "address": "localhost:6379",
+        "db": "0",
+        "command": "SET",
+        "key": "leads:last_score",
+        "value": "{{score_lead.score}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "lead_webhook", "target": "score_lead" },
+    { "id": "e2", "source": "score_lead", "target": "high_value" },
+    { "id": "e3", "source": "high_value", "sourceHandle": "true", "target": "sales_alert" },
+    { "id": "e4", "source": "high_value", "sourceHandle": "false", "target": "record_lead_score" }
+  ]
+}
+

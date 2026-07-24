@@ -40,6 +40,7 @@ This guide describes how to prepare a Goflow preview release.
    - Binary: `goflow.exe` or `goflow`.
    - `README.md`
    - `NODES.md`
+   - `PLUGINS.md`
    - `BACKUP.md`
    - `CHANGELOG.md`
    - `COMMERCIAL.md`
